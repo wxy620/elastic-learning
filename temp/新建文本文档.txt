@@ -1,0 +1,391 @@
+PUT users/_doc/1
+{"name":"niko","age":31}
+
+PUT users/_doc/1
+{"name":"niko"}
+
+PUT users/_create/1
+{"name":"hello"}
+
+GET users/_doc/1
+
+POST users/_search
+
+POST users/_update/1
+{
+  "doc":{
+    "title":"ElasticSearch User Home Tea,Download It a"
+  }
+}
+
+PUT users/_mapping
+{
+  "dynamic": true
+}
+
+
+
+POST _analyze
+{
+  "analyzer": "ik_smart",
+  "text": "我想要喝肥宅快乐水"
+}
+
+GET /movies/_search?q=title:"Beautiful Mind"
+{
+  "profile": "true"
+}
+
+POST movies/_search
+{
+  "query":{
+    "match":{
+      "title":{
+        "query": "Last Christmas",
+        "operator": "and"
+      }}
+    }
+  
+}
+
+
+POST movies/_search
+{
+  "size": 1, 
+  "query":{
+    "match_phrase":{
+      "title":{
+        "query": "Doctor Christmas", 
+        "slop": 2
+      }}
+    }
+  
+}
+
+POST movies/_search
+{
+  "query": {
+    "query_string": {
+      "default_field": "title", 
+      "query": "Doctor AND The"
+    }
+  }
+}
+
+GET movies
+
+
+PUT users2
+{
+  "mappings": {
+    "properties": {
+      "firstname":{
+        "type": "text",
+        "index": true,
+        "copy_to": "fullname"
+      },
+      "lastname":{
+        "type": "text",
+        "index": true,
+        "copy_to": "fullname"
+      }
+      
+    }
+  }
+}
+
+POST users2/_doc/1
+{
+  "lastname":"xinyu",
+  "firstname":"wang"
+}
+
+POST users2/_doc/2
+{
+  "lastname":"xinyu",
+  "firstname":"li"
+}
+
+
+GET users2/_doc/1
+
+POST users2/_search
+{
+  "query": {
+    "match": {
+      "fullname": {
+        "query": "wang xinyu",
+        "operator": "or"
+      }
+    }
+  }
+}
+
+POST _analyze
+{
+  "tokenizer": "whitespace",
+  "filter": ["lowercase","stop"],
+  "text": ["The am winner!"]
+}
+
+
+GET kibana_sample_data_flights/_search
+{
+  "size": 0,
+  "aggs": {
+    "flight_dest": {
+      "terms": {
+        "field": "DestCountry"
+      },
+      "aggs": {
+        "avg_price": {
+          "avg": {
+            "field": "AvgTicketPrice"
+          }
+        },
+        "max_price": {
+          "max": {
+            "field": "AvgTicketPrice"
+          }
+        },
+        "min_price": {
+          "min": {
+            "field": "AvgTicketPrice"
+          }
+        },
+        "weather_term": {
+          "terms": {
+            "field": "DestWeather",
+            "size": 3
+          }
+        }
+      }
+    }
+  }
+}
+
+
+POST /movies/_bulk
+{ "index": { "_id": 1 }}
+{ "title" : "Father of the Bridge Part II","year":1995, "genre":"Comedy","genere_count":1}
+{ "index": { "_id": 2 }}
+{ "title" : "Dave","year":1993,"genre":["Comedy","Romance"],"genere_count":2}
+
+
+POST movies/_search
+{
+  "query": {
+    "bool": {
+      "filter": [
+        {
+          "term": {
+          "genre.keyword": "Comedy"
+          }
+        },
+        {
+          "term": {
+            "genere_count": 1
+          }    
+        }
+      ]
+    }
+    
+  }
+}
+
+POST movies/_search
+{
+  "query": {
+    "constant_score": {
+      "filter": {
+        "bool": {
+          "filter": [
+            {
+              "term": {
+              "genre.keyword": "Comedy"
+              }
+            },
+            {
+              "term": {
+                "genere_count": 1
+              }    
+            }
+      ]
+        }
+      }
+    }
+    
+  }
+}
+
+DELETE userprofile_sys_usergroup_webchat
+
+PUT userprofile_sys_usergroup_webchat
+{
+  "settings": {
+    "number_of_shards": 3, 
+    "number_of_replicas": 1
+  },
+  "mappings": {
+    "properties": {
+      "usergroupid": {
+        "type": "keyword"
+      },
+      "unionid": {
+        "type": "keyword"
+      },
+      "openid": {
+        "type": "keyword"
+      },
+      "data_date": {
+        "type": "date"
+      }
+    }
+  }
+}
+
+POST userprofile_sys_usergroup_webchat/_doc
+{
+  "usergroupid":"CONSUME_U_01_001_002",
+  "unionid":"111",
+  "openid":"2398923402614",
+  "data_date":"1604644537396"
+}
+## 2398923402612 2398923402613
+GET userprofile_sys_usergroup_webchat/_search
+{
+  "query": {
+    "query_string": {
+      "default_field": "openid", 
+      "query": 2398923402612
+    }
+  }
+}
+
+GET userprofile_sys_usergroup_webchat/_search
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+
+## 并集
+GET userprofile_sys_usergroup_webchat/_search
+{
+  
+  "query": {
+    "bool": {
+      "filter": [
+        {
+          "terms": {
+            "usergroupid": [
+              "CONSUME_U_01_001_002",
+              "ATTRITUBE_U_01_006_001"
+            ]
+          }
+          
+        }
+      ]
+    }
+  }
+}
+
+## 交集
+GET userprofile_sys_usergroup_webchat/_search
+{
+  "query": {
+    "bool": {
+     "must": [
+       {
+         "terms": {
+           "usergroupid": [
+             "CONSUME_U_01_001_002",
+             "ATTRITUBE_U_01_006_001"
+             ]
+         }
+
+       }
+     ]
+     
+    }
+  }
+}
+
+
+
+GET userprofile_sys_usergroup_webchat/_search
+{
+  "aggs": {
+    "filter1": {
+      "filter": {
+        "term": {
+          "usergroupid": "CONSUME_U_01_001_002"
+        }
+      },
+      "aggs": {
+        "filter2": {
+          "filter": {
+            "term": {
+              "usergroupid": "ATTRITUBE_U_01_006_001"
+            }
+          },"aggs": {
+            "bucket_num": {
+              "terms": {
+                "field": "openid"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+
+#交集
+GET userprofile_sys_usergroup_webchat/_search
+{
+	"size": 0,
+	"query": {
+		"bool": {
+			"filter": [
+			  {
+			    "terms": {
+			      "usergroupid": [
+              "CONSUME_U_01_001_001",
+              "ATTRITUBE_U_01_006_001"
+			      ]
+			    }
+			  }
+			]
+		}
+	},
+	"aggs": {
+		"openIds": {
+			"terms": {
+				"field": "openid",
+				"min_doc_count": 2
+			}
+		}
+	}
+	
+}
+
+GET userprofile_sys_usergroup_webchat/_search
+{
+  "query": {
+	  "bool": {
+	    "must": [
+	      {
+	        "terms": {
+	          "usergroupid": [
+	            "CONSUME_U_01_001_001",
+	            "ATTRITUBE_U_01_006_001"
+	          ]
+	        }
+	      }
+	    ]
+	  }
+	}
+}
